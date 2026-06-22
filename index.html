@@ -8,20 +8,37 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Firebase Compat CDN SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
   <style>
-    /* Reset & CSS variables */
+    /* Design Tokens & CSS Variables */
     :root {
+      /* Colors */
       --primary: #2563EB;
       --primary-hover: #1D4ED8;
       --bg-main: #FFFFFF;
-      --bg-subtle: #F8F8F8;
+      --bg-subtle: #F8F9FA;
+      --card-bg: #FFFFFF;
       --border-color: #E5E7EB;
       --text-main: #1F2937;
       --text-muted: #6B7280;
       --text-light: #9CA3AF;
       --success: #10B981;
       --danger: #EF4444;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
       --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body.dark-mode {
+      --bg-main: #0F0F0F;
+      --bg-subtle: #151515;
+      --card-bg: #1A1A1A;
+      --border-color: #2A2A2A;
+      --text-main: #F5F5F5;
+      --text-muted: #A0A0A0;
+      --text-light: #666666;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
     }
 
     * {
@@ -37,6 +54,7 @@
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
     }
 
     /* Helper classes */
@@ -68,17 +86,12 @@
     }
 
     .card {
-      background: var(--bg-main);
+      background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow);
       padding: 2rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .card-hover-lift:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: background-color 0.3s, border-color 0.3s, transform 0.2s, box-shadow 0.2s;
     }
 
     /* Buttons */
@@ -106,6 +119,11 @@
       background-color: var(--primary-hover);
     }
 
+    .btn-primary:disabled {
+      background-color: var(--text-light);
+      cursor: not-allowed;
+    }
+
     .btn-ghost {
       background-color: transparent;
       border-color: var(--border-color);
@@ -125,6 +143,16 @@
 
     .btn-danger:hover {
       background-color: #FEE2E2;
+    }
+
+    body.dark-mode .btn-danger {
+      background-color: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+    }
+
+    body.dark-mode .btn-danger:hover {
+      background-color: rgba(239, 68, 68, 0.25);
     }
 
     .btn-sm {
@@ -153,9 +181,9 @@
       font-size: 0.875rem;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      background-color: #FFFFFF;
+      background-color: var(--card-bg);
       color: var(--text-main);
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.3s, color 0.3s;
     }
 
     .form-input:focus {
@@ -203,6 +231,27 @@
       width: 100%;
     }
 
+    .spinner-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem auto;
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--border-color);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     /* Admin Link Styles */
     .admin-link {
       position: absolute;
@@ -225,7 +274,7 @@
 
     .admin-link:hover {
       color: var(--primary);
-      background-color: #FFFFFF;
+      background-color: var(--card-bg);
       border-color: var(--primary);
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
       transform: translateY(-1px);
@@ -266,6 +315,10 @@
       justify-content: center;
       margin: 0 auto 1.5rem auto;
       color: var(--primary);
+    }
+
+    body.dark-mode .pulse-logo {
+      background-color: rgba(37, 99, 235, 0.15);
     }
 
     .redirect-title {
@@ -313,6 +366,10 @@
       margin: 0 auto 1rem auto;
     }
 
+    body.dark-mode .login-icon {
+      background-color: rgba(37, 99, 235, 0.15);
+    }
+
     .login-error {
       background-color: #FEF2F2;
       border: 1px solid #FEE2E2;
@@ -324,18 +381,25 @@
       text-align: center;
     }
 
+    body.dark-mode .login-error {
+      background-color: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
     /* --- Admin Dashboard Styles --- */
     .dashboard-wrapper {
       background-color: var(--bg-subtle);
       min-height: 100vh;
+      animation: fadeIn 0.4s ease-out;
     }
 
     .header-bar {
-      background-color: #FFFFFF;
+      background-color: var(--card-bg);
       border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
       z-index: 10;
+      transition: background-color 0.3s, border-color 0.3s;
     }
 
     .header-container {
@@ -372,29 +436,36 @@
     }
 
     .stat-card {
-      background-color: #FFFFFF;
+      background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 1.5rem;
       display: flex;
       align-items: center;
       gap: 1rem;
+      box-shadow: var(--shadow);
+      transition: background-color 0.3s, border-color 0.3s;
     }
 
     .stat-icon {
       width: 48px;
       height: 48px;
       border-radius: 10px;
-      background-color: #F3F4F6;
+      background-color: var(--bg-subtle);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-muted);
+      transition: background-color 0.3s, color 0.3s;
     }
 
     .stat-icon.primary {
       background-color: #EFF6FF;
       color: var(--primary);
+    }
+
+    body.dark-mode .stat-icon.primary {
+      background-color: rgba(37, 99, 235, 0.15);
     }
 
     .stat-content {
@@ -429,124 +500,6 @@
       }
     }
 
-    /* Reps List / Table */
-    .table-container {
-      overflow-x: auto;
-      margin: 1rem -1.5rem -1.5rem -1.5rem;
-      padding: 0 1.5rem;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      padding: 1rem 0.75rem;
-      border-bottom: 1px solid var(--border-color);
-      font-weight: 600;
-    }
-
-    td {
-      padding: 1.25rem 0.75rem;
-      border-bottom: 1px solid var(--border-color);
-      vertical-align: middle;
-      font-size: 0.875rem;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    .rep-name-container {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .rep-name {
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .rep-next-badge {
-      background-color: #EFF6FF;
-      color: var(--primary);
-      font-size: 0.75rem;
-      padding: 0.125rem 0.5rem;
-      border-radius: 4px;
-      font-weight: 500;
-    }
-
-    /* Action Buttons */
-    .actions-cell {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-    }
-
-    .btn-action {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 0.25rem;
-      border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-    }
-
-    .btn-action:hover {
-      background-color: var(--bg-subtle);
-      color: var(--text-main);
-    }
-
-    .btn-action.delete:hover {
-      background-color: #FEF2F2;
-      color: var(--danger);
-    }
-
-    .btn-action.save:hover {
-      background-color: #ECFDF5;
-      color: var(--success);
-    }
-
-    /* Inline input editing */
-    .inline-edit-input {
-      font-family: var(--font-family);
-      font-size: 0.875rem;
-      padding: 0.375rem 0.5rem;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      width: 100%;
-    }
-
-    .inline-edit-input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    /* Section Headers */
-    .section-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 0.5rem;
-    }
-
-    .section-subtitle {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      margin-bottom: 1.5rem;
-    }
-
     /* Custom Checkbox Toggle */
     .switch {
       position: relative;
@@ -573,6 +526,10 @@
       border-radius: 20px;
     }
 
+    body.dark-mode .slider {
+      background-color: #444444;
+    }
+
     .slider:before {
       position: absolute;
       content: "";
@@ -592,9 +549,367 @@
     input:checked + .slider:before {
       transform: translateX(16px);
     }
+
+    /* Tab Switcher Styles */
+    .tab-switcher {
+      display: flex;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      width: fit-content;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--primary);
+      box-shadow: var(--shadow);
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: var(--text-main);
+    }
+
+    /* Representative Cards Layout */
+    .rep-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .rep-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      }
+    }
+
+    .rep-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s, border-color 0.3s;
+    }
+
+    .rep-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+
+    body.dark-mode .rep-card:hover {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+
+    .rep-card.editing {
+      border-color: var(--primary);
+    }
+
+    .rep-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .rep-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-subtle);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.125rem;
+      position: relative;
+      border: 2px solid var(--border-color);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .rep-status-dot {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid var(--card-bg);
+      transition: border-color 0.3s;
+    }
+
+    .rep-status-dot.active {
+      background: var(--success);
+    }
+
+    .rep-status-dot.inactive {
+      background: var(--text-light);
+    }
+
+    .rep-name-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rep-name {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 1rem;
+    }
+
+    .rep-next-badge {
+      background-color: #EFF6FF;
+      color: var(--primary);
+      font-size: 0.7rem;
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    body.dark-mode .rep-next-badge {
+      background-color: rgba(37, 99, 235, 0.15);
+    }
+
+    .rep-number-display {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-family: monospace;
+    }
+
+    .rep-leads-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      padding: 0.375rem 0.75rem;
+      border-radius: 8px;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .rep-leads-count {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1;
+    }
+
+    .rep-leads-label {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .rep-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.75rem;
+      margin-top: auto;
+      transition: border-color 0.3s;
+    }
+
+    .rep-timestamp {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .rep-card-actions {
+      display: flex;
+      gap: 0.375rem;
+      align-items: center;
+    }
+
+    .btn-action-rep {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.375rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-rep:hover {
+      background: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-action-rep.danger:hover {
+      background: #FEF2F2;
+      border-color: #FEE2E2;
+      color: var(--danger);
+    }
+
+    body.dark-mode .btn-action-rep.danger:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Section Headers */
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Empty State Styles */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: var(--bg-subtle);
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      margin-top: 1rem;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .empty-state-icon {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-state-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+    }
+
+    .empty-state-description {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      max-width: 280px;
+    }
+
+    /* Custom Confirm Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    body.dark-mode .modal-overlay {
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: var(--shadow);
+      transform: scale(0.95);
+      animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-body {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+      to { transform: scale(1); }
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
   </style>
 </head>
 <body>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 8px;"></div>
+
+  <!-- Minimal Confirmation Modal -->
+  <div id="confirm-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3 id="modal-title" class="modal-title">Confirm Action</h3>
+      <p id="modal-body" class="modal-body">Are you sure you want to proceed?</p>
+      <div class="modal-actions">
+        <button id="modal-cancel-btn" class="btn btn-ghost">Cancel</button>
+        <button id="modal-confirm-btn" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
 
   <!-- VIEW 1: Lead Redirection Page -->
   <div id="redirect-view" class="redirect-wrapper">
@@ -604,12 +919,15 @@
       <span>Admin Console</span>
     </a>
     <div class="redirect-container">
-      <div class="pulse-logo pulse">
-        <!-- SVG WhatsApp Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-call"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/><path d="M14.05 2a9 9 0 0 1 8 7.94"/><path d="M14.05 6A5 5 0 0 1 18 10"/></svg>
+      <div id="redirect-loading-spinner" class="spinner-container">
+        <div class="loading-spinner"></div>
       </div>
-      <h1 class="redirect-title">Connecting you to our team...</h1>
-      <p id="redirect-status-text" class="redirect-subtitle">Finding an available representative to assist you.</p>
+      <div id="redirect-logo-icon" class="pulse-logo pulse hidden">
+        <!-- SVG WhatsApp Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-call"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72(12.84 12.84 0 0 0 .7-2.81 2 2 0 0 1-.45-2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/><path d="M14.05 2a9 9 0 0 1 8 7.94"/><path d="M14.05 6A5 5 0 0 1 18 10"/></svg>
+      </div>
+      <h1 id="redirect-main-title" class="redirect-title">Connecting...</h1>
+      <p id="redirect-status-text" class="redirect-subtitle">Setting up connection to database.</p>
       
       <div id="fallback-link-container" class="hidden">
         <a id="fallback-link" href="#" class="btn btn-primary">
@@ -659,10 +977,15 @@
           <span class="logo-dot"></span>
           <span>Lead Rotator Admin</span>
         </div>
-        <button class="btn btn-ghost btn-sm" id="logout-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-          Logout
-        </button>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button id="theme-toggle" class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="padding: 0.5rem; border-radius: 8px;">
+            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+          </button>
+          <button class="btn btn-ghost btn-sm" id="logout-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            Logout
+          </button>
+        </div>
       </div>
     </header>
 
@@ -700,69 +1023,186 @@
         </div>
       </section>
 
-      <!-- Main Layout -->
-      <div class="layout-grid">
-        <!-- Representatives Table Card -->
-        <div class="card card-hover-lift">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-            <div>
-              <h2 class="section-title">Sales Representatives</h2>
-              <p class="section-subtitle" style="margin-bottom: 0;">Manage your team and track incoming lead assignments.</p>
+      <!-- Pill Tab Switcher -->
+      <div class="tab-switcher">
+        <button class="tab-btn active" onclick="switchTab('reps')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Sales Reps
+        </button>
+        <button class="tab-btn" onclick="switchTab('settings')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          Settings
+        </button>
+      </div>
+
+      <!-- TAB 1 CONTENT: Sales Reps -->
+      <div id="tab-content-reps" class="tab-pane">
+        <div class="layout-grid">
+          <!-- Representatives Card -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h2 class="section-title">Sales Representatives</h2>
+                <p class="section-subtitle" style="margin-bottom: 0;">Manage your team and track incoming lead assignments.</p>
+              </div>
+              <div>
+                <button class="btn btn-ghost btn-sm" id="reset-counts-btn" onclick="triggerResetAllConfirm()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                  Reset All Counts
+                </button>
+              </div>
             </div>
+
+            <!-- Empty State UI -->
+            <div id="reps-empty-state" class="empty-state hidden">
+              <div class="empty-state-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <h3 class="empty-state-title">No Representatives Added</h3>
+              <p class="empty-state-description">Create team members to start directing lead queries.</p>
+            </div>
+
+            <!-- Reps grid -->
+            <div id="reps-grid" class="rep-grid">
+              <!-- Will be populated by JS -->
+            </div>
+          </div>
+
+          <!-- Add Rep Form -->
+          <div class="card" style="height: fit-content;">
+            <h2 class="section-title">Add Representative</h2>
+            <p class="section-subtitle">Add a new member to the round-robin queue.</p>
+
+            <form id="add-rep-form">
+              <div class="form-group">
+                <label class="form-label" for="add-name">Name</label>
+                <input class="form-input" type="text" id="add-name" placeholder="Ali" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="add-number">WhatsApp Number (with country code)</label>
+                <input class="form-input" type="text" id="add-number" placeholder="+923001234567" required>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                  Must start with '+' followed by the country code and number, digits only.
+                </span>
+              </div>
+              <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+                Add Representative
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2 CONTENT: Settings -->
+      <div id="tab-content-settings" class="tab-pane hidden">
+        <div class="layout-grid">
+          <!-- General Settings -->
+          <div class="card">
+            <h2 class="section-title">Lead Rotator Settings</h2>
+            <p class="section-subtitle">Manage system rotation status, WhatsApp message, and fallback options.</p>
+
+            <form id="settings-general-form">
+              <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 1.25rem;">
+                <div>
+                  <label class="form-label" style="margin-bottom: 0.25rem;">Rotation System Status</label>
+                  <span style="font-size: 0.8125rem; color: var(--text-muted);">Enable or disable lead rotation entirely.</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="settings-rotation-enabled">
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="form-group" style="margin-top: 1.25rem;">
+                <label class="form-label" for="settings-disabled-msg">Disabled Message</label>
+                <input class="form-input" type="text" id="settings-disabled-msg" placeholder="System offline message shown to leads">
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                  Shown to leads if the rotation system status toggle is switched off.
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settings-pre-filled-message">Pre-filled WhatsApp Message</label>
+                <input class="form-input" type="text" id="settings-pre-filled-message" placeholder="e.g. Hi, I'm interested in your offer">
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                  Text pre-filled on WhatsApp chat when redirection triggers.
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settings-fallback-number">Fallback Number</label>
+                <input class="form-input" type="text" id="settings-fallback-number" placeholder="e.g. +923001234567">
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                  Number to use if no sales representatives are active or if Firebase fails to load.
+                </span>
+              </div>
+
+              <button class="btn btn-primary" type="button" onclick="saveGeneralSettings()" style="width: 100%; margin-top: 1rem;">
+                Save Settings
+              </button>
+            </form>
+          </div>
+
+          <!-- Password & DB Info -->
+          <div class="card" style="height: fit-content; display: flex; flex-direction: column; gap: 1.5rem;">
             <div>
-              <button class="btn btn-ghost btn-sm" id="reset-counts-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                Reset Lead Counts
+              <h2 class="section-title">Change Admin Password</h2>
+              <p class="section-subtitle">Update your password to access the Admin panel.</p>
+
+              <form id="settings-password-form">
+                <div class="form-group">
+                  <label class="form-label" for="settings-curr-password">Current Password</label>
+                  <input class="form-input" type="password" id="settings-curr-password" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="settings-new-password">New Password</label>
+                  <input class="form-input" type="password" id="settings-new-password" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="settings-confirm-password">Confirm Password</label>
+                  <input class="form-input" type="password" id="settings-confirm-password" required placeholder="••••••••">
+                </div>
+                <button class="btn btn-ghost" type="button" onclick="changeAdminPassword()" style="width: 100%; border-color: var(--primary); color: var(--primary);">
+                  Update Password
+                </button>
+              </form>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+              <h2 class="section-title">System & Database Status</h2>
+              <div class="form-group">
+                <label class="form-label">Connected Firebase Database URL</label>
+                <input class="form-input" type="text" id="settings-db-url" readonly style="background-color: var(--bg-subtle); color: var(--text-muted); font-family: monospace; font-size: 0.75rem;">
+              </div>
+              <button class="btn btn-ghost" type="button" onclick="copyRotatorUrl()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                Copy Rotator Link
               </button>
             </div>
           </div>
-
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 80px;">Status</th>
-                  <th>Representative</th>
-                  <th>WhatsApp Number</th>
-                  <th style="text-align: center;">Leads Routed</th>
-                  <th style="width: 120px; text-align: right;">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="reps-table-body">
-                <!-- Will be populated by JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Add Sales Representative Card -->
-        <div class="card card-hover-lift">
-          <h2 class="section-title">Add Representative</h2>
-          <p class="section-subtitle">Add a new member to the round-robin queue.</p>
-
-          <form id="add-rep-form">
-            <div class="form-group">
-              <label class="form-label" for="add-name">Name</label>
-              <input class="form-input" type="text" id="add-name" placeholder="e.g. Ali" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="add-number">WhatsApp Number (with country code)</label>
-              <input class="form-input" type="text" id="add-number" placeholder="e.g. 923001234567" required>
-              <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">
-                Include country code without + symbols, spaces or hyphens.
-              </span>
-            </div>
-            <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 0.5rem;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
-              Add Representative
-            </button>
-          </form>
         </div>
       </div>
     </main>
   </div>
 
   <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCyx1qjzpRMKgMkGbIEF6sX5K7dkU2NC-I",
+      authDomain: "lead-gen-90af4.firebaseapp.com",
+      databaseURL: "https://lead-gen-90af4-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "lead-gen-90af4",
+      storageBucket: "lead-gen-90af4.firebasestorage.app",
+      messagingSenderId: "876983298788",
+      appId: "1:876983298788:web:e100bfc6481371580f9af1",
+      measurementId: "G-M9M8RH7XE7"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     // Config & Default Constants
     const PRE_FILLED_MESSAGE = "Hi, I'm interested in your offer";
     const REDIRECT_DELAY_MS = 1500;
@@ -774,49 +1214,38 @@
       { id: '5', name: 'Usman', number: '923009998887', leads: 0, active: true }
     ];
 
-    // LocalStorage keys
-    const LS_KEY_REPS = 'whatsapp_lead_reps';
-    const LS_KEY_ROTATION_INDEX = 'whatsapp_rotation_index';
-
     // State Variables
+    let currentRepsState = [];
+    let currentIndexState = 0;
+    let currentSettingsState = {};
     let editingRepId = null;
     let redirectTimeout = null;
+    let dbListener = null;
+    let inactivityTimer = null;
+    const INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30 minutes
+
+    // Hashing Function: SHA-256
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     // Helper: Clean number of any non-digit chars
     function cleanWhatsAppNumber(numberStr) {
       return numberStr.replace(/\D/g, '');
     }
 
-    // Initialize LocalStorage Data if not exists
-    function initLocalStorage() {
-      if (!localStorage.getItem(LS_KEY_REPS)) {
-        localStorage.setItem(LS_KEY_REPS, JSON.stringify(DEFAULT_REPS));
-      }
-      if (!localStorage.getItem(LS_KEY_ROTATION_INDEX)) {
-        localStorage.setItem(LS_KEY_ROTATION_INDEX, '0');
-      }
+    // Input Sanitizer
+    function sanitizeInput(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/<[^>]*>/g, '').trim();
     }
 
-    // Get representatives from storage
-    function getReps() {
-      initLocalStorage();
-      return JSON.parse(localStorage.getItem(LS_KEY_REPS));
-    }
-
-    // Save representatives to storage
-    function saveReps(reps) {
-      localStorage.setItem(LS_KEY_REPS, JSON.stringify(reps));
-    }
-
-    // Get current rotation index
-    function getRotationIndex() {
-      initLocalStorage();
-      return parseInt(localStorage.getItem(LS_KEY_ROTATION_INDEX), 10);
-    }
-
-    // Save rotation index
-    function saveRotationIndex(idx) {
-      localStorage.setItem(LS_KEY_ROTATION_INDEX, idx.toString());
+    // Validator: WhatsApp format (e.g. +923001234567)
+    function isValidWhatsAppNumber(numStr) {
+      return /^\+[1-9]\d{1,14}$/.test(numStr);
     }
 
     // Find who is next in rotation
@@ -826,73 +1255,418 @@
       return activeReps[rotationIndex % activeReps.length];
     }
 
-    // Lead redirection flow
-    function handleRedirect() {
-      const reps = getReps();
-      const rotationIndex = getRotationIndex();
-      const activeReps = reps.filter(r => r.active);
+    // Toast Notification System
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      let iconSvg = '';
+      if (type === 'success') {
+        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+      } else if (type === 'error') {
+        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12" y1="16" y2="16"/></svg>`;
+      } else {
+        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="12" y2="16"/><line x1="12" x2="12" y1="8" y2="8"/></svg>`;
+      }
 
-      const statusTextElement = document.getElementById('redirect-status-text');
-      const fallbackContainer = document.getElementById('fallback-link-container');
-      const fallbackLink = document.getElementById('fallback-link');
+      toast.innerHTML = `
+        ${iconSvg}
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
 
-      if (activeReps.length === 0) {
-        statusTextElement.innerHTML = `No representatives are currently active.<br>If you are an administrator, configure them in the <a href="#admin" style="color: var(--primary); font-weight: 600; text-decoration: underline;">Admin Panel</a>.`;
+    // Custom Confirmation Dialog System
+    let confirmCallback = null;
+    function showConfirmModal(title, body, callback) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-body').innerText = body;
+      document.getElementById('confirm-modal').classList.remove('hidden');
+      confirmCallback = callback;
+    }
+    function hideConfirmModal() {
+      document.getElementById('confirm-modal').classList.add('hidden');
+      confirmCallback = null;
+    }
+    document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+      if (confirmCallback) confirmCallback();
+      hideConfirmModal();
+    });
+    document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+      hideConfirmModal();
+    });
+
+    // Dark/Light Theme Support
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+      updateThemeIcon();
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      if (body.classList.contains('dark-mode')) {
+        body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+        showToast("Theme changed to Light Mode", "info");
+      } else {
+        body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+        showToast("Theme changed to Dark Mode", "info");
+      }
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const icon = document.getElementById('theme-icon');
+      if (!icon) return;
+      const isDark = document.body.classList.contains('dark-mode');
+      if (isDark) {
+        icon.innerHTML = `<path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 12h1" /><path d="M20 12h1" /><path d="M12 3v1" /><path d="M12 20v1" /><path d="M5.6 5.6l.7 .7" /><path d="M17.7 17.7l.7 .7" /><path d="M17.7 6.4l-.7 .7" /><path d="M5.6 18.4l-.7 .7" />`;
+      } else {
+        icon.innerHTML = `<path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />`;
+      }
+    }
+
+    // Auto Logout on Inactivity
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      if (sessionStorage.getItem('isAdminAuthenticated') === 'true') {
+        inactivityTimer = setTimeout(() => {
+          logoutAdmin("Session expired due to 30 minutes of inactivity.");
+        }, INACTIVITY_LIMIT_MS);
+      }
+    }
+    ['click', 'keypress', 'mousemove', 'scroll'].forEach(evt => {
+      window.addEventListener(evt, resetInactivityTimer);
+    });
+
+    // Brute Force Lockout
+    function getLockoutTimeLeft() {
+      const lockoutUntil = localStorage.getItem('loginLockoutUntil');
+      if (!lockoutUntil) return 0;
+      const timeLeft = parseInt(lockoutUntil) - Date.now();
+      return timeLeft > 0 ? timeLeft : 0;
+    }
+
+    let lockoutInterval = null;
+    function updateLockoutCountdown() {
+      const timeLeft = getLockoutTimeLeft();
+      const passwordInput = document.getElementById('admin-password-input');
+      const submitBtn = document.querySelector('#login-form button[type="submit"]');
+      const errorMsg = document.getElementById('login-error-msg');
+
+      if (timeLeft > 0) {
+        passwordInput.disabled = true;
+        submitBtn.disabled = true;
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        errorMsg.classList.remove('hidden');
+        errorMsg.innerText = `Too many failed attempts. Locked out. Try again in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (!lockoutInterval) {
+          lockoutInterval = setInterval(updateLockoutCountdown, 1000);
+        }
+      } else {
+        passwordInput.disabled = false;
+        submitBtn.disabled = false;
+        errorMsg.classList.add('hidden');
+        if (lockoutInterval) {
+          clearInterval(lockoutInterval);
+          lockoutInterval = null;
+        }
+      }
+    }
+
+    // Tab Switching Pane
+    function switchTab(tabId) {
+      const buttons = document.querySelectorAll('.tab-switcher .tab-btn');
+      buttons.forEach(btn => {
+        if (btn.getAttribute('onclick').includes(tabId)) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      const repsPanel = document.getElementById('tab-content-reps');
+      const settingsPanel = document.getElementById('tab-content-settings');
+
+      if (tabId === 'reps') {
+        repsPanel.classList.remove('hidden');
+        settingsPanel.classList.add('hidden');
+      } else {
+        repsPanel.classList.add('hidden');
+        settingsPanel.classList.remove('hidden');
+        loadSettingsForm();
+      }
+    }
+
+    // Settings Load & Save
+    function loadSettingsForm() {
+      if (!currentSettingsState) return;
+      document.getElementById('settings-rotation-enabled').checked = currentSettingsState.systemEnabled !== false;
+      document.getElementById('settings-disabled-msg').value = currentSettingsState.disabledMessage || '';
+      document.getElementById('settings-pre-filled-message').value = currentSettingsState.whatsappMessage || '';
+      document.getElementById('settings-fallback-number').value = currentSettingsState.fallbackNumber ? `+${currentSettingsState.fallbackNumber}` : '';
+      document.getElementById('settings-db-url').value = firebaseConfig.databaseURL;
+    }
+
+    function saveGeneralSettings() {
+      const systemEnabled = document.getElementById('settings-rotation-enabled').checked;
+      const disabledMsg = sanitizeInput(document.getElementById('settings-disabled-msg').value);
+      const preFilledMsg = sanitizeInput(document.getElementById('settings-pre-filled-message').value);
+      const fallbackNumInput = document.getElementById('settings-fallback-number').value.trim();
+
+      if (fallbackNumInput && !isValidWhatsAppNumber(fallbackNumInput)) {
+        showToast("Fallback number must start with '+' and country code, numbers only.", "error");
         return;
       }
 
-      // Identify the target rep using round-robin logic
-      const targetRep = activeReps[rotationIndex % activeReps.length];
+      const cleanFallback = cleanWhatsAppNumber(fallbackNumInput);
 
-      // Update lead counts for target representative in the overall reps list
-      const updatedReps = reps.map(r => {
-        if (r.id === targetRep.id) {
-          return { ...r, leads: r.leads + 1 };
-        }
-        return r;
+      database.ref('settings').update({
+        systemEnabled: systemEnabled,
+        disabledMessage: disabledMsg,
+        whatsappMessage: preFilledMsg,
+        fallbackNumber: cleanFallback
+      }).then(() => {
+        showToast("Settings updated successfully.", "success");
+      }).catch(err => {
+        console.error(err);
+        showToast("Failed to save settings.", "error");
       });
-      saveReps(updatedReps);
+    }
 
-      // Increment rotation pointer
-      saveRotationIndex(rotationIndex + 1);
+    async function changeAdminPassword() {
+      const currPass = document.getElementById('settings-curr-password').value;
+      const newPass = document.getElementById('settings-new-password').value;
+      const confirmPass = document.getElementById('settings-confirm-password').value;
 
-      // Construct URL
-      const cleanNum = cleanWhatsAppNumber(targetRep.number);
-      const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(PRE_FILLED_MESSAGE)}`;
+      if (!currPass || !newPass || !confirmPass) {
+        showToast("All password fields are required.", "error");
+        return;
+      }
 
-      // Update UI with target info
-      statusTextElement.innerText = `Connecting you with our representative ${targetRep.name}...`;
+      if (newPass !== confirmPass) {
+        showToast("New passwords do not match.", "error");
+        return;
+      }
 
-      // Set fallback link in case automatic redirection is blocked
-      fallbackLink.href = waUrl;
-      fallbackContainer.classList.remove('hidden');
+      const currHash = await sha256(currPass);
+      const dbHash = currentSettingsState.adminPasswordHash || '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
 
-      // Execute Redirection
-      redirectTimeout = setTimeout(() => {
-        window.location.href = waUrl;
-      }, REDIRECT_DELAY_MS);
+      if (currHash !== dbHash) {
+        showToast("Current password is incorrect.", "error");
+        return;
+      }
+
+      const newHash = await sha256(newPass);
+
+      database.ref('settings/adminPasswordHash').set(newHash).then(() => {
+        showToast("Password updated successfully.", "success");
+        document.getElementById('settings-curr-password').value = '';
+        document.getElementById('settings-new-password').value = '';
+        document.getElementById('settings-confirm-password').value = '';
+      }).catch(err => {
+        console.error(err);
+        showToast("Failed to change password.", "error");
+      });
+    }
+
+    function copyRotatorUrl() {
+      const url = window.location.origin + window.location.pathname;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast("Rotator link copied to clipboard!", "success");
+      }).catch(() => {
+        showToast("Failed to copy link.", "error");
+      });
+    }
+
+    // Lead redirection flow using Firebase Transaction
+    function handleRedirect() {
+      const statusTextElement = document.getElementById('redirect-status-text');
+      const mainTitleElement = document.getElementById('redirect-main-title');
+      const fallbackContainer = document.getElementById('fallback-link-container');
+      const fallbackLink = document.getElementById('fallback-link');
+      const loadingSpinner = document.getElementById('redirect-loading-spinner');
+      const logoIcon = document.getElementById('redirect-logo-icon');
+
+      statusTextElement.innerText = "Finding an available representative to assist you...";
+      fallbackContainer.classList.add('hidden');
+      loadingSpinner.classList.remove('hidden');
+      logoIcon.classList.add('hidden');
+
+      database.ref().once('value').then((snapshot) => {
+        const data = snapshot.val() || {};
+        let settings = data.settings || {
+          systemEnabled: true,
+          disabledMessage: "The support line is currently offline. Please try again later.",
+          whatsappMessage: "Hi, I'm interested in your offer",
+          fallbackNumber: "923001234567"
+        };
+        
+        if (settings.systemEnabled === false) {
+          loadingSpinner.classList.add('hidden');
+          logoIcon.classList.remove('hidden');
+          mainTitleElement.innerText = "System Offline";
+          statusTextElement.innerText = settings.disabledMessage || "Rotation is currently disabled.";
+          return;
+        }
+
+        let targetRep = null;
+        let chosenMessage = settings.whatsappMessage || PRE_FILLED_MESSAGE;
+
+        database.ref().transaction((currentData) => {
+          if (!currentData) return currentData;
+
+          const reps = currentData.reps || [];
+          let currentIndex = currentData.currentIndex || 0;
+          const activeReps = reps.filter(r => r.active);
+          
+          if (activeReps.length > 0) {
+            const nextActiveRep = activeReps[currentIndex % activeReps.length];
+            currentData.reps = reps.map(r => {
+              if (r.id === nextActiveRep.id) {
+                return { 
+                  ...r, 
+                  leads: (r.leads || 0) + 1,
+                  lastLeadAt: Date.now()
+                };
+              }
+              return r;
+            });
+            currentData.currentIndex = currentIndex + 1;
+            targetRep = nextActiveRep;
+          } else {
+            targetRep = null;
+          }
+          return currentData;
+        }, (error, committed, txSnapshot) => {
+          loadingSpinner.classList.add('hidden');
+          logoIcon.classList.remove('hidden');
+
+          if (error) {
+            console.error("Redirection transaction failed:", error);
+            if (settings.fallbackNumber) {
+              const cleanNum = cleanWhatsAppNumber(settings.fallbackNumber);
+              const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
+              mainTitleElement.innerText = "Connection Error";
+              statusTextElement.innerText = `An error occurred. Redirecting to fallback support: +${cleanNum}...`;
+              fallbackLink.href = waUrl;
+              fallbackContainer.classList.remove('hidden');
+              redirectTimeout = setTimeout(() => {
+                window.location.href = waUrl;
+              }, REDIRECT_DELAY_MS);
+            } else {
+              statusTextElement.innerText = "Error assigning representative. Please refresh page.";
+            }
+            return;
+          }
+
+          if (!committed || !targetRep) {
+            if (settings.fallbackNumber) {
+              const cleanNum = cleanWhatsAppNumber(settings.fallbackNumber);
+              const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
+              mainTitleElement.innerText = "Representative Offline";
+              statusTextElement.innerText = `No active representatives. Redirecting to fallback support...`;
+              fallbackLink.href = waUrl;
+              fallbackContainer.classList.remove('hidden');
+              redirectTimeout = setTimeout(() => {
+                window.location.href = waUrl;
+              }, REDIRECT_DELAY_MS);
+            } else {
+              mainTitleElement.innerText = "No Representatives Online";
+              statusTextElement.innerHTML = `No representatives are currently active.<br>If you are an administrator, configure them in the <a href="#admin" style="color: var(--primary); font-weight: 600; text-decoration: underline;">Admin Panel</a>.`;
+            }
+            return;
+          }
+
+          const cleanNum = cleanWhatsAppNumber(targetRep.number);
+          const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
+
+          mainTitleElement.innerText = "Connecting...";
+          statusTextElement.innerText = `Connecting you with our representative ${targetRep.name}...`;
+
+          fallbackLink.href = waUrl;
+          fallbackContainer.classList.remove('hidden');
+
+          redirectTimeout = setTimeout(() => {
+            window.location.href = waUrl;
+          }, REDIRECT_DELAY_MS);
+        });
+      });
     }
 
     // Authentication Actions
-    document.getElementById('login-form').addEventListener('submit', function(e) {
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
       e.preventDefault();
+      
+      const timeLeft = getLockoutTimeLeft();
+      if (timeLeft > 0) return;
+
       const passwordInput = document.getElementById('admin-password-input');
       const errorMsg = document.getElementById('login-error-msg');
+      const enteredPassword = passwordInput.value;
 
-      if (passwordInput.value === 'admin123') {
-        sessionStorage.setItem('isAdminAuthenticated', 'true');
-        errorMsg.classList.add('hidden');
-        passwordInput.value = '';
-        router(); // re-route
-      } else {
-        errorMsg.classList.remove('hidden');
-      }
+      const enteredHash = await sha256(enteredPassword);
+
+      database.ref('settings/adminPasswordHash').once('value').then((snapshot) => {
+        let dbHash = snapshot.val();
+        const defaultHash = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
+        if (!dbHash) {
+          dbHash = defaultHash;
+          database.ref('settings/adminPasswordHash').set(defaultHash);
+        }
+
+        if (enteredHash === dbHash) {
+          sessionStorage.setItem('isAdminAuthenticated', 'true');
+          localStorage.removeItem('loginFailedAttempts');
+          localStorage.removeItem('loginLockoutUntil');
+          errorMsg.classList.add('hidden');
+          passwordInput.value = '';
+          showToast("Access granted. Welcome to Admin Console.", "success");
+          router();
+          resetInactivityTimer();
+        } else {
+          let attempts = parseInt(localStorage.getItem('loginFailedAttempts') || '0') + 1;
+          localStorage.setItem('loginFailedAttempts', attempts);
+          
+          if (attempts >= 5) {
+            const lockoutUntil = Date.now() + 15 * 60 * 1000;
+            localStorage.setItem('loginLockoutUntil', lockoutUntil);
+            updateLockoutCountdown();
+            showToast("Too many failed attempts. Locked out for 15 minutes.", "error");
+          } else {
+            errorMsg.classList.remove('hidden');
+            errorMsg.innerText = `Incorrect password. Attempt ${attempts} of 5 before lockout.`;
+            showToast(`Incorrect password. ${5 - attempts} attempts left.`, "error");
+          }
+          passwordInput.value = '';
+        }
+      });
     });
 
-    document.getElementById('logout-btn').addEventListener('click', function() {
+    function logoutAdmin(message = "Logged out successfully.") {
       sessionStorage.removeItem('isAdminAuthenticated');
+      clearTimeout(inactivityTimer);
       window.location.hash = '';
+      showToast(message, "info");
       router();
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      logoutAdmin();
     });
 
     // Add Sales Representative Form Submission
@@ -901,84 +1675,110 @@
       const nameInput = document.getElementById('add-name');
       const numberInput = document.getElementById('add-number');
 
-      const name = nameInput.value.trim();
-      const number = cleanWhatsAppNumber(numberInput.value.trim());
+      const name = sanitizeInput(nameInput.value.trim());
+      const rawNumber = numberInput.value.trim();
 
-      if (!name || !number) {
-        alert("Please fill in valid name and WhatsApp number.");
+      if (!name) {
+        showToast("Please enter a valid representative name.", "error");
         return;
       }
 
-      const reps = getReps();
+      if (!isValidWhatsAppNumber(rawNumber)) {
+        showToast("WhatsApp number must start with '+' and country code, numbers only.", "error");
+        return;
+      }
+
+      const cleanNum = cleanWhatsAppNumber(rawNumber);
+
       const newRep = {
         id: Date.now().toString(),
         name: name,
-        number: number,
+        number: cleanNum,
         leads: 0,
         active: true
       };
 
-      reps.push(newRep);
-      saveReps(reps);
-
-      nameInput.value = '';
-      numberInput.value = '';
-
-      renderDashboard();
+      const updatedReps = [...currentRepsState, newRep];
+      database.ref('reps').set(updatedReps).then(() => {
+        showToast(`Representative ${name} added successfully.`, "success");
+        nameInput.value = '';
+        numberInput.value = '';
+      }).catch(err => {
+        console.error(err);
+        showToast("Failed to add representative.", "error");
+      });
     });
 
-    // Reset Lead Counts Event
-    document.getElementById('reset-counts-btn').addEventListener('click', function() {
-      if (confirm('Are you sure you want to reset all lead counts to 0?')) {
-        const reps = getReps();
-        const resetReps = reps.map(r => ({ ...r, leads: 0 }));
-        saveReps(resetReps);
-        saveRotationIndex(0); // Also reset rotation index back to first rep
-        renderDashboard();
-      }
-    });
+    // Trigger Reset All Confirmation Modal
+    function triggerResetAllConfirm() {
+      showConfirmModal(
+        "Reset All Lead Counts",
+        "Are you sure you want to reset all lead counts back to 0? This action cannot be undone.",
+        () => {
+          const resetReps = currentRepsState.map(r => ({ ...r, leads: 0 }));
+          database.ref().update({
+            reps: resetReps,
+            currentIndex: 0
+          }).then(() => {
+            showToast("All lead counts reset successfully.", "success");
+          }).catch(err => {
+            console.error(err);
+            showToast("Failed to reset lead counts.", "error");
+          });
+        }
+      );
+    }
+
+    // Trigger Delete Confirmation Modal
+    function triggerDeleteConfirm(id, name) {
+      showConfirmModal(
+        "Remove Representative",
+        `Are you sure you want to remove ${name}? They will be deleted from the system and queue immediately.`,
+        () => {
+          const filtered = currentRepsState.filter(r => r.id !== id);
+          const activeCount = filtered.filter(r => r.active).length;
+          let newIndex = currentIndexState;
+          if (activeCount > 0 && newIndex >= activeCount) {
+            newIndex = newIndex % activeCount;
+          }
+          database.ref().update({
+            reps: filtered,
+            currentIndex: newIndex
+          }).then(() => {
+            showToast(`Representative ${name} removed successfully.`, "success");
+          }).catch(err => {
+            console.error(err);
+            showToast("Failed to remove representative.", "error");
+          });
+        }
+      );
+    }
 
     // Update Rep Status (Toggle active)
     function toggleRepStatus(id) {
-      const reps = getReps();
-      const updated = reps.map(r => {
+      const rep = currentRepsState.find(r => r.id === id);
+      const updated = currentRepsState.map(r => {
         if (r.id === id) {
           return { ...r, active: !r.active };
         }
         return r;
       });
-      saveReps(updated);
-      renderDashboard();
-    }
-
-    // Delete Representative
-    function deleteRep(id) {
-      if (confirm('Are you sure you want to remove this representative?')) {
-        const reps = getReps();
-        const filtered = reps.filter(r => r.id !== id);
-        saveReps(filtered);
-        
-        // If the current rotation index is now invalid, reset or clamp it
-        const rotationIndex = getRotationIndex();
-        const activeCount = filtered.filter(r => r.active).length;
-        if (activeCount > 0 && rotationIndex >= activeCount) {
-          saveRotationIndex(rotationIndex % activeCount);
-        }
-        
-        renderDashboard();
-      }
+      database.ref('reps').set(updated).then(() => {
+        const nextStatus = rep ? (!rep.active ? "Active" : "Inactive") : "Updated";
+        showToast(`Representative status set to ${nextStatus}.`, "success");
+      });
     }
 
     // Enable Inline Edit Mode
     function startInlineEdit(id) {
       editingRepId = id;
-      renderDashboard();
+      renderDashboard(currentRepsState, currentIndexState);
     }
 
     // Cancel Inline Edit Mode
     function cancelInlineEdit() {
       editingRepId = null;
-      renderDashboard();
+      renderDashboard(currentRepsState, currentIndexState);
     }
 
     // Save Inline Edit changes
@@ -988,136 +1788,201 @@
 
       if (!nameInput || !numberInput) return;
 
-      const newName = nameInput.value.trim();
-      const newNumber = cleanWhatsAppNumber(numberInput.value.trim());
+      const newName = sanitizeInput(nameInput.value.trim());
+      const rawNumber = numberInput.value.trim();
 
-      if (!newName || !newNumber) {
-        alert("Name and number cannot be empty.");
+      if (!newName) {
+        showToast("Name cannot be empty.", "error");
         return;
       }
 
-      const reps = getReps();
-      const updated = reps.map(r => {
+      if (!isValidWhatsAppNumber(rawNumber)) {
+        showToast("WhatsApp number must start with '+' and country code, numbers only.", "error");
+        return;
+      }
+
+      const cleanNum = cleanWhatsAppNumber(rawNumber);
+
+      const updated = currentRepsState.map(r => {
         if (r.id === id) {
-          return { ...r, name: newName, number: newNumber };
+          return { ...r, name: newName, number: cleanNum };
         }
         return r;
       });
 
-      saveReps(updated);
-      editingRepId = null;
-      renderDashboard();
+      database.ref('reps').set(updated).then(() => {
+        showToast("Representative details updated.", "success");
+        editingRepId = null;
+      }).catch(err => {
+        console.error(err);
+        showToast("Failed to save changes.", "error");
+      });
     }
 
-    // Render Admin Dashboard Data & Rows
-    function renderDashboard() {
-      const reps = getReps();
-      const rotationIndex = getRotationIndex();
-      const activeReps = reps.filter(r => r.active);
-      const nextRep = getNextRep(reps, rotationIndex);
-
-      // 1. Render Stats
-      const totalLeads = reps.reduce((acc, curr) => acc + curr.leads, 0);
-      document.getElementById('stat-total-leads').innerText = totalLeads;
-      document.getElementById('stat-active-count').innerText = `${activeReps.length} / ${reps.length}`;
-      document.getElementById('stat-next-rep').innerText = nextRep ? nextRep.name : 'None';
-
-      // 2. Render Table Body
-      const tbody = document.getElementById('reps-table-body');
-      tbody.innerHTML = '';
-
-      if (reps.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">
-              No representatives added yet. Use the form to add some!
-            </td>
-          </tr>
-        `;
+    // Render Cards Grid
+    function renderRepsGrid(reps, nextRep) {
+      const grid = document.getElementById('reps-grid');
+      const emptyState = document.getElementById('reps-empty-state');
+      grid.innerHTML = '';
+      
+      if (!reps || reps.length === 0) {
+        emptyState.classList.remove('hidden');
         return;
       }
+      emptyState.classList.add('hidden');
 
       reps.forEach(rep => {
         const isEditing = editingRepId === rep.id;
         const isNext = nextRep && nextRep.id === rep.id;
-
-        const row = document.createElement('tr');
-
-        // Column 1: Status (Checkbox Toggle + Indicator Badge)
-        const tdStatus = document.createElement('td');
-        tdStatus.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <label class="switch">
-              <input type="checkbox" ${rep.active ? 'checked' : ''} onchange="toggleRepStatus('${rep.id}')">
-              <span class="slider"></span>
-            </label>
-            <span class="status-badge">
-              <span class="status-dot ${rep.active ? '' : 'inactive'}"></span>
-            </span>
-          </div>
-        `;
-        row.appendChild(tdStatus);
-
-        // Column 2: Name
-        const tdName = document.createElement('td');
+        
+        const card = document.createElement('div');
+        card.className = `rep-card ${isEditing ? 'editing' : ''}`;
+        
+        const initials = rep.name ? rep.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
+        
         if (isEditing) {
-          tdName.innerHTML = `<input type="text" class="inline-edit-input" id="edit-name-${rep.id}" value="${rep.name}">`;
+          card.innerHTML = `
+            <div class="rep-card-header">
+              <div class="rep-avatar">
+                ${initials}
+                <span class="rep-status-dot ${rep.active ? 'active' : 'inactive'}"></span>
+              </div>
+              <div class="rep-leads-badge">
+                <span class="rep-leads-count">${rep.leads || 0}</span>
+                <span class="rep-leads-label">Leads</span>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0.5rem;">
+              <label class="form-label" style="font-size: 0.75rem;">Name</label>
+              <input type="text" class="form-input" id="edit-name-${rep.id}" value="${rep.name}">
+            </div>
+            <div class="form-group" style="margin-bottom: 0.5rem;">
+              <label class="form-label" style="font-size: 0.75rem;">WhatsApp Number</label>
+              <input type="text" class="form-input" id="edit-number-${rep.id}" value="+${rep.number}">
+            </div>
+            <div class="rep-card-footer">
+              <span class="rep-timestamp">${rep.lastLeadAt ? 'Last: ' + new Date(rep.lastLeadAt).toLocaleTimeString() : 'No leads yet'}</span>
+              <div class="rep-card-actions">
+                <button class="btn-action-rep" onclick="saveInlineEdit('${rep.id}')" title="Save" style="background-color: var(--primary); color: white; border-color: var(--primary);">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button class="btn-action-rep" onclick="cancelInlineEdit()" title="Cancel">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+                </button>
+              </div>
+            </div>
+          `;
         } else {
-          tdName.innerHTML = `
-            <div class="rep-name-container">
-              <span class="rep-name">${rep.name}</span>
-              ${isNext ? '<span class="rep-next-badge">Next</span>' : ''}
+          card.innerHTML = `
+            <div class="rep-card-header">
+              <div class="rep-avatar">
+                ${initials}
+                <span class="rep-status-dot ${rep.active ? 'active' : 'inactive'}"></span>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <label class="switch">
+                  <input type="checkbox" ${rep.active ? 'checked' : ''} onchange="toggleRepStatus('${rep.id}')">
+                  <span class="slider"></span>
+                </label>
+                <div class="rep-leads-badge">
+                  <span class="rep-leads-count">${rep.leads || 0}</span>
+                  <span class="rep-leads-label">Leads</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="rep-name-container">
+                <span class="rep-name">${rep.name}</span>
+                ${isNext ? '<span class="rep-next-badge">Next</span>' : ''}
+              </div>
+              <div class="rep-number-display">+${rep.number}</div>
+            </div>
+            <div class="rep-card-footer">
+              <span class="rep-timestamp">${rep.lastLeadAt ? 'Last: ' + new Date(rep.lastLeadAt).toLocaleTimeString() : 'No leads yet'}</span>
+              <div class="rep-card-actions">
+                <button class="btn-action-rep" onclick="startInlineEdit('${rep.id}')" title="Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </button>
+                <button class="btn-action-rep danger" onclick="triggerDeleteConfirm('${rep.id}', '${rep.name}')" title="Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                </button>
+              </div>
             </div>
           `;
         }
-        row.appendChild(tdName);
-
-        // Column 3: Number
-        const tdNumber = document.createElement('td');
-        if (isEditing) {
-          tdNumber.innerHTML = `<input type="text" class="inline-edit-input" id="edit-number-${rep.id}" value="${rep.number}">`;
-        } else {
-          tdNumber.innerHTML = `<span style="font-family: monospace;">+${rep.number}</span>`;
-        }
-        row.appendChild(tdNumber);
-
-        // Column 4: Leads count
-        const tdLeads = document.createElement('td');
-        tdLeads.style.textAlign = 'center';
-        tdLeads.innerHTML = `<strong>${rep.leads}</strong>`;
-        row.appendChild(tdLeads);
-
-        // Column 5: Actions
-        const tdActions = document.createElement('td');
-        tdActions.className = 'actions-cell';
-        if (isEditing) {
-          tdActions.innerHTML = `
-            <button class="btn-action save" onclick="saveInlineEdit('${rep.id}')" title="Save">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"/></svg>
-            </button>
-            <button class="btn-action" onclick="cancelInlineEdit()" title="Cancel">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
-            </button>
-          `;
-        } else {
-          tdActions.innerHTML = `
-            <button class="btn-action" onclick="startInlineEdit('${rep.id}')" title="Edit inline">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-edit-3"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            </button>
-            <button class="btn-action delete" onclick="deleteRep('${rep.id}')" title="Delete">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-            </button>
-          `;
-        }
-        row.appendChild(tdActions);
-
-        tbody.appendChild(row);
+        grid.appendChild(card);
       });
+    }
+
+    // Render Admin Dashboard Data & Rows
+    function renderDashboard(reps, rotationIndex) {
+      const activeReps = reps.filter(r => r.active);
+      const nextRep = getNextRep(reps, rotationIndex);
+
+      // 1. Render Stats
+      const totalLeads = reps.reduce((acc, curr) => acc + (curr.leads || 0), 0);
+      document.getElementById('stat-total-leads').innerText = totalLeads;
+      document.getElementById('stat-active-count').innerText = `${activeReps.length} / ${reps.length}`;
+      document.getElementById('stat-next-rep').innerText = nextRep ? nextRep.name : 'None';
+
+      // 2. Render Cards Grid
+      renderRepsGrid(reps, nextRep);
+    }
+
+    // Initialize/Stop Dashboard realtime sync
+    function initDashboardSync() {
+      if (dbListener) {
+        database.ref().off('value', dbListener);
+      }
+      dbListener = database.ref().on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        let reps = data.reps;
+        let currentIndex = data.currentIndex;
+        let settings = data.settings || {};
+
+        if (!data.settings) {
+          settings = {
+            systemEnabled: true,
+            disabledMessage: "The support line is currently offline. Please try again later.",
+            whatsappMessage: "Hi, I'm interested in your offer",
+            fallbackNumber: "923001234567",
+            adminPasswordHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9" // admin123
+          };
+          database.ref('settings').set(settings);
+        }
+
+        if (currentIndex === undefined || currentIndex === null) {
+          currentIndex = 0;
+        }
+
+        if (!reps) {
+          reps = DEFAULT_REPS;
+          database.ref().update({ reps, currentIndex });
+          return;
+        }
+
+        currentRepsState = reps;
+        currentIndexState = currentIndex;
+        currentSettingsState = settings;
+
+        renderDashboard(reps, currentIndex);
+
+        const settingsTabOpen = !document.getElementById('tab-content-settings').classList.contains('hidden');
+        if (settingsTabOpen) {
+          loadSettingsForm();
+        }
+      });
+    }
+
+    function stopDashboardSync() {
+      if (dbListener) {
+        database.ref().off('value', dbListener);
+        dbListener = null;
+      }
     }
 
     // Router for state transitions
     function router() {
-      // Clear any pending automatic redirection timeout on route changes
       if (redirectTimeout) {
         clearTimeout(redirectTimeout);
         redirectTimeout = null;
@@ -1125,7 +1990,6 @@
       const hash = window.location.hash;
       const isAuth = sessionStorage.getItem('isAdminAuthenticated') === 'true';
 
-      // Hide all views
       document.getElementById('redirect-view').classList.add('hidden');
       document.getElementById('admin-login-view').classList.add('hidden');
       document.getElementById('admin-dashboard-view').classList.add('hidden');
@@ -1133,12 +1997,16 @@
       if (hash === '#admin') {
         if (isAuth) {
           document.getElementById('admin-dashboard-view').classList.remove('hidden');
-          renderDashboard();
+          initDashboardSync();
+          resetInactivityTimer();
         } else {
+          stopDashboardSync();
           document.getElementById('admin-login-view').classList.remove('hidden');
+          updateLockoutCountdown();
           document.getElementById('admin-password-input').focus();
         }
       } else {
+        stopDashboardSync();
         document.getElementById('redirect-view').classList.remove('hidden');
         handleRedirect();
       }
@@ -1147,7 +2015,7 @@
     // Initialize Routing on state load & hash changes
     window.addEventListener('hashchange', router);
     window.addEventListener('load', () => {
-      initLocalStorage();
+      initTheme();
       router();
     });
   </script>
