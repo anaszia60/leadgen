@@ -1575,7 +1575,7 @@
             console.error("Redirection transaction failed:", error);
             if (settings.fallbackNumber) {
               const cleanNum = cleanWhatsAppNumber(settings.fallbackNumber);
-              const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
+              const waUrl = `https://api.whatsapp.com/send/?phone=${cleanNum}&text=${encodeURIComponent(chosenMessage)}&type=phone_number&app_absent=0`;
               mainTitleElement.innerText = "Connection Error";
               statusTextElement.innerText = isFacebookApp
                 ? "An error occurred. Please tap the button below to contact support."
@@ -1597,7 +1597,7 @@
           if (!committed || !targetRep) {
             if (settings.fallbackNumber) {
               const cleanNum = cleanWhatsAppNumber(settings.fallbackNumber);
-              const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
+              const waUrl = `https://api.whatsapp.com/send/?phone=${cleanNum}&text=${encodeURIComponent(chosenMessage)}&type=phone_number&app_absent=0`;
               mainTitleElement.innerText = "Representative Offline";
               statusTextElement.innerText = isFacebookApp
                 ? "No active representatives. Please tap the button below to contact fallback support."
@@ -1618,7 +1618,7 @@
           }
 
           const cleanNum = cleanWhatsAppNumber(targetRep.number);
-          const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
+          const waUrl = `https://api.whatsapp.com/send/?phone=${cleanNum}&text=${encodeURIComponent(chosenMessage)}&type=phone_number&app_absent=0`;
 
           fallbackLink.setAttribute('data-href', waUrl);
           fallbackLink.innerText = isFacebookApp ? "Click here to open WhatsApp" : "Connect Manually";
