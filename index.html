@@ -1237,6 +1237,21 @@
       return numberStr.replace(/\D/g, '');
     }
 
+    // Detect if running inside Facebook's in-app browser
+    const isFacebookApp = /FBAN|FBAV/i.test(navigator.userAgent);
+
+    // Redirect helper using window.open as primary and window.location.href as fallback
+    function performRedirect(url) {
+      try {
+        const newWindow = window.open(url, '_blank');
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          window.location.href = url;
+        }
+      } catch (e) {
+        window.location.href = url;
+      }
+    }
+
     // Input Sanitizer
     function sanitizeInput(str) {
       if (typeof str !== 'string') return '';
@@ -1562,12 +1577,17 @@
               const cleanNum = cleanWhatsAppNumber(settings.fallbackNumber);
               const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
               mainTitleElement.innerText = "Connection Error";
-              statusTextElement.innerText = `An error occurred. Redirecting to fallback support: +${cleanNum}...`;
-              fallbackLink.href = waUrl;
+              statusTextElement.innerText = isFacebookApp
+                ? "An error occurred. Please tap the button below to contact support."
+                : `An error occurred. Redirecting to fallback support: +${cleanNum}...`;
+              fallbackLink.setAttribute('data-href', waUrl);
+              fallbackLink.innerText = isFacebookApp ? "Click here to open WhatsApp" : "Connect Manually";
               fallbackContainer.classList.remove('hidden');
-              redirectTimeout = setTimeout(() => {
-                window.location.href = waUrl;
-              }, REDIRECT_DELAY_MS);
+              if (!isFacebookApp) {
+                redirectTimeout = setTimeout(() => {
+                  performRedirect(waUrl);
+                }, REDIRECT_DELAY_MS);
+              }
             } else {
               statusTextElement.innerText = "Error assigning representative. Please refresh page.";
             }
@@ -1579,12 +1599,17 @@
               const cleanNum = cleanWhatsAppNumber(settings.fallbackNumber);
               const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
               mainTitleElement.innerText = "Representative Offline";
-              statusTextElement.innerText = `No active representatives. Redirecting to fallback support...`;
-              fallbackLink.href = waUrl;
+              statusTextElement.innerText = isFacebookApp
+                ? "No active representatives. Please tap the button below to contact fallback support."
+                : `No active representatives. Redirecting to fallback support...`;
+              fallbackLink.setAttribute('data-href', waUrl);
+              fallbackLink.innerText = isFacebookApp ? "Click here to open WhatsApp" : "Connect Manually";
               fallbackContainer.classList.remove('hidden');
-              redirectTimeout = setTimeout(() => {
-                window.location.href = waUrl;
-              }, REDIRECT_DELAY_MS);
+              if (!isFacebookApp) {
+                redirectTimeout = setTimeout(() => {
+                  performRedirect(waUrl);
+                }, REDIRECT_DELAY_MS);
+              }
             } else {
               mainTitleElement.innerText = "No Representatives Online";
               statusTextElement.innerHTML = `No representatives are currently active.<br>If you are an administrator, configure them in the <a href="#admin" style="color: var(--primary); font-weight: 600; text-decoration: underline;">Admin Panel</a>.`;
@@ -1595,18 +1620,33 @@
           const cleanNum = cleanWhatsAppNumber(targetRep.number);
           const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(chosenMessage)}`;
 
-          mainTitleElement.innerText = "Connecting...";
-          statusTextElement.innerText = `Connecting you with our representative ${targetRep.name}...`;
-
-          fallbackLink.href = waUrl;
+          fallbackLink.setAttribute('data-href', waUrl);
+          fallbackLink.innerText = isFacebookApp ? "Click here to open WhatsApp" : "Connect Manually";
           fallbackContainer.classList.remove('hidden');
 
-          redirectTimeout = setTimeout(() => {
-            window.location.href = waUrl;
-          }, REDIRECT_DELAY_MS);
+          if (isFacebookApp) {
+            mainTitleElement.innerText = "Open WhatsApp";
+            statusTextElement.innerText = `Please tap the button below to start your chat with ${targetRep.name}.`;
+          } else {
+            mainTitleElement.innerText = "Connecting...";
+            statusTextElement.innerText = `Connecting you with our representative ${targetRep.name}...`;
+
+            redirectTimeout = setTimeout(() => {
+              performRedirect(waUrl);
+            }, REDIRECT_DELAY_MS);
+          }
         });
       });
     }
+
+    // Fallback link event listener for programmatic redirection
+    document.getElementById('fallback-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      const url = this.getAttribute('data-href');
+      if (url) {
+        performRedirect(url);
+      }
+    });
 
     // Authentication Actions
     document.getElementById('login-form').addEventListener('submit', async function(e) {
